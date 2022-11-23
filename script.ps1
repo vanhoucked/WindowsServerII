@@ -60,6 +60,14 @@ foreach ($vm in $vmArray) {
 }
 
 #vCPU cores toekennen
+foreach ($vm in $vmArray) {
+    try {
+        VBoxManage modifyvm $vm --cpus=$processorTable.$vm
+        Write-Output $processorTable.$vm " cores toegekend aan " $vm
+    } catch {
+        Write-Outpu "Er gebeurde een fout tijdens het toekennen van de processorkernen aan " $vm
+    }
+}
 
 #netwerkinstellingen
 foreach ($vm in $vmArray) {
