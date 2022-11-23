@@ -1,6 +1,3 @@
-#Variabelen voor script bepalen
-$userName = [System.Environment]::UserName
-
 #Hostnames van virtuele machines definiëren
 $AD = "Zeus"
 $CA = "Apollo"
@@ -22,15 +19,17 @@ $serverArray = $AD,$CA,$IIS,$Exchange
 foreach ($vm in $serverArray) {
     try {
         VBoxManage createvm --name=$vm --ostype="Windows2019_64" --register
+        Write-Output "[CREATIE MELDING] $vm werd aangemaakt."
     } catch {
-        Write-Output "Er gebeurde een fout tijdens het aanmaken van " $vm
+        Write-Output "[CREATIE MELDING] Er gebeurde een fout tijdens het aanmaken van $vm."
     }
     
 }
 try {
     VBoxManage createvm --name=$Client --ostype="Windows10_64" --register
+    Write-Output "[CREATIE MELDING] $Client werd aangemaakt."
 } catch {
-    Write-Output "Er gebeurde een fout tijdens het aanmaken van " $Client
+    Write-Output "[CREATIE MELDING] Er gebeurde een fout tijdens het aanmaken van $Client."
 }
 
 
@@ -38,12 +37,12 @@ try {
 foreach ($vm in $vmArray) {
     try {
         $grootteMB = $opslagTable.$vm * 1024 #MiB?
-        VBoxManage createmedium --filename=$vm.vdi --size=$grootteMB
+        VBoxManage createmedium --filename=/vdi/$vm.vdi --size=$grootteMB
         VBoxManage storagectl $vm --name="SATA Controller"$vm --add=sata --controller=IntelAHCI
-        VBoxManage storageattach $vm --storagectl="SATA Controller"$vm --port=0 --device=0 --type=hdd --medium=$vm.vdi
-        Write-Output "Virtuele harde schijf aangemaakt voor $vm met een grootte van $grootteMB MB" 
+        VBoxManage storageattach $vm --storagectl="SATA Controller"$vm --port=0 --device=0 --type=hdd --medium=/vdi/$vm.vdi
+        Write-Output "[OPSLAG MELDING] Virtuele harde schijf aangemaakt voor $vm met een grootte van $grootteMB MB." 
     } catch {
-        Write-Output "Er gebeurde een fout tijdens het aanmaken van de harde schijf voor " $vm
+        Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het aanmaken van de harde schijf voor $vm."
     }
     
 }
@@ -53,19 +52,19 @@ foreach ($vm in $vmArray) {
     try {
         $geheugenMB = $geheugenTable.$vm * 1024
         VBoxManage modifyvm $vm --memory=$geheugenMB
-        Write-Output $geheugenMB " MB werkgeheugen toegekend aan " $vm
+        Write-Output "[RAM MELDING] $geheugenMBMB werkgeheugen toegekend aan $vm."
     } catch {
-        Write-Output "Er gebeurde een fout tijdens het toekennen van werkgeheugen aan " $vm
+        Write-Output "[RAM MELDING] Er gebeurde een fout tijdens het toekennen van werkgeheugen aan $vm."
     }
 }
 
 #vCPU cores toekennen
 foreach ($vm in $vmArray) {
     try {
-        VBoxManage modifyvm $vm --cpus=$processorTable.$vm
-        Write-Output $processorTable.$vm " cores toegekend aan " $vm
+        VBoxManage modifyvm $vm --cpus $processorTable.$vm
+        Write-Output "[CPU MELDING] $processorTable.$vm cores toegekend aan $vm."
     } catch {
-        Write-Outpu "Er gebeurde een fout tijdens het toekennen van de processorkernen aan " $vm
+        Write-Output "[CPU MELDING] Er gebeurde een fout tijdens het toekennen van de processorkernen aan $vm."
     }
 }
 
@@ -73,14 +72,14 @@ foreach ($vm in $vmArray) {
 foreach ($vm in $vmArray) {
     try {
         VBoxManage modifyvm $vm --nic1=intnet
-        Write-Output "Intnet netwerkkaart toegevoegd aan " $vm
+        Write-Output "[NETWERK MELDING] Intnet netwerkkaart toegevoegd aan $vm."
     } catch {
-        Write-Output "Er gebeurde een fout tijdens het toekennen van de intnet netwerkkaart aan " $vm
+        Write-Output "[NETWERK MELDING] Er gebeurde een fout tijdens het toekennen van de intnet netwerkkaart aan $vm."
     }
 }
 try {
-    VBoxManage modifyvm $vm --nic2=nat
-    Write-Output "NAT netwerkkaart toegevoegd aan " $vm
+    VBoxManage modifyvm $AD --nic2=nat
+    Write-Output "[NETWERK MELDING] NAT netwerkkaart toegevoegd aan $AD."
 } catch {
-    Write-Output "Er gebeurde een fout tijdens het toekennen van de NAT netwerkkaart aan " $vm
+    Write-Output "[NETWERK MELDING] Er gebeurde een fout tijdens het toekennen van de NAT netwerkkaart aan $AD."
 }
