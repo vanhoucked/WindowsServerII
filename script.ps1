@@ -100,3 +100,13 @@ try {
 } catch {
     Write-Output "[NETWERK MELDING] Er gebeurde een fout tijdens het toekennen van de NAT netwerkkaart aan $AD."
 }
+
+#gedeelde map met powershell scripts
+foreach ($vm in $vmArray) {
+    try {
+        VBoxManage sharedfolder add $vm --name=scripts --hostpath=/scripts --readonly --automount
+        Write-Output "[OPSLAG MELDING] De gedeelde folder met powershell scripts werd gemount aan $vm."
+    } catch {
+        Write-Output "[OPSLAG MELDING] De gedeelde folder met powershell scripts kon niet gemount worden aan $vm."
+    }
+}
