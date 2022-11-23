@@ -36,15 +36,32 @@ try {
 #Virtuele opslagapparaten aanmaken
 foreach ($vm in $vmArray) {
     try {
-        $grootteMB = $opslagTable.$vm * 1024 #MiB?
+        $grootteMB = $opslagTable.$vm * 1024
         VBoxManage createmedium --filename=/vdi/$vm.vdi --size=$grootteMB
-        VBoxManage storagectl $vm --name="SATA Controller"$vm --add=sata --controller=IntelAHCI
-        VBoxManage storageattach $vm --storagectl="SATA Controller"$vm --port=0 --device=0 --type=hdd --medium=/vdi/$vm.vdi
+        VBoxManage storagectl $vm --name="SATA Controller $vm" --add sata --controller=IntelAHCI
+        VBoxManage storageattach $vm --storagectl="SATA Controller $vm" --port=0 --type hdd --medium=/vdi/$vm.vdi
         Write-Output "[OPSLAG MELDING] Virtuele harde schijf aangemaakt voor $vm met een grootte van $grootteMB MB." 
     } catch {
         Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het aanmaken van de harde schijf voor $vm."
     }
-    
+}
+
+#iso toevoegen
+foreach ($vm in $serverArray) {
+    try {
+        VBoxManage storagectl $vm --name="IDE Controller $vm" --add ide
+        VBoxManage storageattach $vm --storagectl="IDE Controller $vm" --port=1 --type dvddrive --medium=/iso/Windows2019.iso
+        Write-Output "[OPSLAG MELDING] ISO gemount aan $vm."
+    } catch {
+        Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het mounten van de iso aan $vm."
+    }
+}
+try {
+    VBoxManage storagectl $Client --name="IDE Controller $Client" --add ide
+    VBoxManage storageattach $Client --storagectl="IDE Controller $Client" --port=1 --type dvddrive --medium=/iso/Windows10.iso
+    Write-Output "[OPSLAG MELDING] ISO gemount aan $Client."
+} catch {
+    Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het mounten van de iso aan $Client."
 }
 
 #Geheugen toekennen
