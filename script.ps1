@@ -5,6 +5,8 @@ $IIS = "Artemis"
 $Exchange = "Hermes"
 $Client = "Client"
 
+$domain = "WS2-2223-dre.hogent"
+
 #Groottes opslagapparaten bepalen
 $opslagTable = @{$AD=75;$CA=50;$IIS=100;$Exchange=100;$Client=50}
 #vRAM bepalen
@@ -70,22 +72,22 @@ foreach ($vm in $vmArray) {
 }
 
 #iso toevoegen
-foreach ($vm in $serverArray) {
-    try {
-        VBoxManage storagectl $vm --name="IDE Controller $vm" --add ide
-        VBoxManage storageattach $vm --storagectl="IDE Controller $vm" --port=1 --device=0 --type dvddrive --medium=iso/Windows2019.iso
-        Write-Output "[OPSLAG MELDING] ISO gemount aan $vm."
-    } catch {
-        Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het mounten van de iso aan $vm."
-    }
-}
-try {
-    VBoxManage storagectl $Client --name="IDE Controller $Client" --add ide
-    VBoxManage storageattach $Client --storagectl="IDE Controller $Client" --port=1 --device=0 --type dvddrive --medium=iso/Windows10.iso
-    Write-Output "[OPSLAG MELDING] ISO gemount aan $Client."
-} catch {
-    Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het mounten van de iso aan $Client."
-}
+# foreach ($vm in $serverArray) {
+#     try {
+#         VBoxManage storagectl $vm --name="IDE Controller $vm" --add ide
+#         VBoxManage storageattach $vm --storagectl="IDE Controller $vm" --port=1 --device=0 --type dvddrive --medium=iso/Windows2019.iso
+#         Write-Output "[OPSLAG MELDING] ISO gemount aan $vm."
+#     } catch {
+#         Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het mounten van de iso aan $vm."
+#     }
+# }
+# try {
+#     VBoxManage storagectl $Client --name="IDE Controller $Client" --add ide
+#     VBoxManage storageattach $Client --storagectl="IDE Controller $Client" --port=1 --device=0 --type dvddrive --medium=iso/Windows10.iso
+#     Write-Output "[OPSLAG MELDING] ISO gemount aan $Client."
+# } catch {
+#     Write-Output "[OPSLAG MELDING] Er gebeurde een fout tijdens het mounten van de iso aan $Client."
+# }
 
 #Geheugen toekennen
 foreach ($vm in $vmArray) {
@@ -129,12 +131,25 @@ try {
 foreach ($vm in $vmArray) {
     try {
         $functie = $functieTable.$vm
-        VBoxManage sharedfolder add $vm --name=scripts --hostpath=scripts/$functie --readonly --automount
+        VBoxManage sharedfolder add $vm --name=$vm --hostpath=scripts/$functie --automount
         Write-Output "[OPSLAG MELDING] De gedeelde folder met powershell scripts werd gemount aan $vm."
     } catch {
         Write-Output "[OPSLAG MELDING] De gedeelde folder met powershell scripts kon niet gemount worden aan $vm."
     }
 }
 
-#VM starten
-VBoxManage startvm $AD
+#unattended install
+foreach ($vm in $vmArray) {
+    try {
+        if ($vm -eq $AD) {
+            VBoxManage unattended install $vm --iso=iso/Windows2019.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --image-index=2
+        } elseif ($vm -eq $Client) {
+            VBoxManage unattended install $vm --iso=iso/Windows10.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --hostname=$Client.$domain
+        } else {
+            VBoxManage unattended install $vm --iso=iso/Windows2019.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --image-index=1
+        }
+        Write-Output "[CREATIE MELDING] Er werd een unattendend install file gemaakt voor $vm"
+    } catch {
+        Write-Output "[CREATIE MELDING] Er ging iets fout tijdens de unattended install van $vm"
+    }
+}
