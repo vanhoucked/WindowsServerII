@@ -18,6 +18,16 @@ $vmArray = $AD,$CA,$IIS,$Exchange,$Client
 $serverArray = $AD,$CA,$IIS,$Exchange
 $functieTable = @{$AD="AD";$CA="CA";$IIS="IIS";$Exchange="Exchange";$Client="Client"}
 
+#verwijderen eerdere versies
+foreach ($vm in $vmArray) {
+    try {
+        VBoxManage unregistervm --delete $vm
+        Write-Output "[CREATIE MELDING] Eerdere versie van $vm werd verwijderd."
+    } catch {
+        Write-Output "[CREATIE MELDING] Eerdere versie van $vm kon niet verwijderd worden."
+    }
+}
+
 #VM's aanmaken
 foreach ($vm in $serverArray) {
     try {
@@ -142,11 +152,11 @@ foreach ($vm in $vmArray) {
 foreach ($vm in $vmArray) {
     try {
         if ($vm -eq $AD) {
-            VBoxManage unattended install $vm --iso=iso/Windows2019.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --image-index=2
+            VBoxManage unattended install $AD --iso=iso/Windows2019.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --image-index=2 --hostname=$AD.$domain
         } elseif ($vm -eq $Client) {
-            VBoxManage unattended install $vm --iso=iso/Windows10.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --hostname=$Client.$domain
+            VBoxManage unattended install $Client --iso=iso/Windows10.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --hostname=$Client.$domain
         } else {
-            VBoxManage unattended install $vm --iso=iso/Windows2019.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --image-index=1
+            VBoxManage unattended install $vm --iso=iso/Windows2019.iso --user=Administrator --password=HoGent2022 --install-additions --time-zone=UTC --image-index=1 --hostname=$vm.$domain
         }
         Write-Output "[CREATIE MELDING] Er werd een unattendend install file gemaakt voor $vm"
     } catch {
