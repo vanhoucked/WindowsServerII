@@ -1,0 +1,1 @@
+Add-DnsServerForwarder -IPAddress 1.1.1.1
