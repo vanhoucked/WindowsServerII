@@ -6,9 +6,9 @@ $LanguageList.Add("nl-BE")
 $LanguageList.Remove($LanguageList[0])
 Set-WinUserLanguageList $LanguageList -Force
 
-$LanguageList = Get-WinUserLanguageList
-$LanguageList.Add("nl-BE")
-$LanguageList.Remove($LanguageList[0])
-Set-WinUserLanguageList $LanguageList -Force
+#Netwerkadapters
+$ip = "192.168.22.252"
 
-Add-Computer -DomainName "WS2-2223-dre.hogent" #vraagt om credentials en reboot
+Rename-NetAdapter "Ethernet" -NewName "LAN"
+
+Get-NetAdapter -Name "LAN" | New-NetIPAddress -IPAddress $ip -AddressFamily IPv4 -PrefixLength 24
