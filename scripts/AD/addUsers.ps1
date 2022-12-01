@@ -1,7 +1,8 @@
 $ouArray = "Management", "IT", "Accounting", "HR", "Sales"
 
 foreach ($ou in $ouArray) {
-    New-ADOrganizationalUnit -Name $ou -Path "DC=WS2-2223-Dre,DC=hogent" –ProtectedFromAccidentalDeletion $False
+    New-ADOrganizationalUnit -Name "$ou" -Path "DC=WS2-2223-Dre,DC=hogent" –ProtectedFromAccidentalDeletion "$False"
+    #protected geeft probleem
 }
 
 $securePassword = ConvertTo-SecureString -String "HoGent2022" -AsPlainText -Force

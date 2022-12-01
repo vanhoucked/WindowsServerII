@@ -1,4 +1,7 @@
-Set-ExecutionPolicy Unrestricted
+Unblock-File AD.ps1
+Unblock-File addUsers.ps1
+Unblock-File DNS.ps1
+Unblock-File Routing.ps1
 
 #Toetsenbordindeling nl-BE als standaard gebruiken
 $LanguageList = Get-WinUserLanguageList

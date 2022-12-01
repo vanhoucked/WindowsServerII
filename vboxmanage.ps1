@@ -141,7 +141,7 @@ try {
 foreach ($vm in $vmArray) {
     try {
         $functie = $functieTable.$vm
-        VBoxManage sharedfolder add $vm --name=$vm --hostpath=scripts/$functie --automount
+        VBoxManage sharedfolder add $vm --name=$vm --hostpath=scripts/$functie --automount --auto-mount-point "X:"
         Write-Output "[OPSLAG MELDING] De gedeelde folder met powershell scripts werd gemount aan $vm."
     } catch {
         Write-Output "[OPSLAG MELDING] De gedeelde folder met powershell scripts kon niet gemount worden aan $vm."
