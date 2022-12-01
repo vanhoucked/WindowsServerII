@@ -1,5 +1,3 @@
-Set-ExecutionPolicy Unrestricted
-
 #Toetsenbordindeling nl-BE als standaard gebruiken
 $LanguageList = Get-WinUserLanguageList
 $LanguageList.Add("nl-BE")
