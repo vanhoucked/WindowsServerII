@@ -17,7 +17,7 @@ Add-DhcpServerInDC -DnsName $FQDN -IPAddress $ip
 
 Add-DhcpServerSecurityGroup
 Add-DhcpServerv4Scope -Name "DHCPScope" -StartRange 192.168.22.101 -EndRange 192.168.22.150 -SubnetMask 255.255.255.0 -State Active
-$dnsArray = "1.1.1.1","8.8.8.8","8.8.4.4"
+$dnsArray = "192.168.22.254","192.168.22.253"
 Set-DhcpServerv4OptionValue -ScopeId "DHCPScope" -DnsServer $dnsArray
 
 Restart-Computer
